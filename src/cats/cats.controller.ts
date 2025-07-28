@@ -8,10 +8,18 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
   //   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateCatDto } from 'src/cats/dto/createCat.dto';
+import {
+  CreateCatSchema,
+  CreateCatZodDto,
+} from 'src/cats/dto/createCatZod.dto';
+// import { IdParamDto } from 'src/cats/dto/idParam.dto';
+import { ParseIdPipe } from 'src/cats/pipes/parseIdPipe';
+import { ZodValidationPipe } from 'src/cats/pipes/zodValidationPipe';
 
 @Controller('cats')
 export class CatsController {
@@ -29,16 +37,15 @@ export class CatsController {
 
   @Post()
   //   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new ZodValidationPipe(CreateCatSchema))
   createCat(
     @Body(
       new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
         groups: ['create'],
         always: true,
       }),
     )
-    body: CreateCatDto,
+    body: CreateCatZodDto,
   ) {
     return body;
   }
@@ -46,10 +53,10 @@ export class CatsController {
   @Patch(':id')
   //   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   updateCat(
+    // @Param('id') param: IdParamDto,
+    @Param('id', ParseIdPipe) id,
     @Body(
       new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
         groups: ['update'],
         always: true,
       }),
